@@ -2,87 +2,43 @@
 
 import { useState } from "react";
 import { UploadCloud, X, Check, AlertCircle } from "lucide-react";
+import { UploadButton } from "@/components/upload-button"; // ✅ use our reusable button
 import { API_BASE } from "@/lib/api";
 
-
 interface UploadResult {
-  filename: string;
+  image_url: string;
   caption?: string;
 }
 
 export default function Upload() {
-  const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [result, setResult] = useState<UploadResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const handleFileSelect = async (file: File | undefined) => {
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError("Please select a valid image file");
-      return;
-    }
-
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setError("File size must be less than 10MB");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
-
-    setError(null);
-    setResult(null);
-    setUploading(true);
-
-    const formData = new FormData();
-    formData.append("image", file);
+  const handleUploadComplete = async (res: any[]) => {
+    const file = res[0];
+    setPreview(file.ufsUrl);
 
     try {
-      const res = await fetch(`${API_BASE}/index-photo`, {
+      const backendRes = await fetch(`${API_BASE}/photos/upload`, {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          image_url: file.ufsUrl,
+        
+        }),
       });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.detail || "Upload failed");
+      if (!backendRes.ok) {
+        const err = await backendRes.json();
+        throw new Error(err.detail || "Backend processing failed");
       }
 
-      const data: UploadResult = await res.json();
-      setResult(data);
+      const data = await backendRes.json();
+      setResult({ image_url: file.ufsUrl, caption: data.caption });
     } catch (err: any) {
-      setError(err.message || "An error occurred during upload");
-      setPreview(null);
-    } finally {
-      setUploading(false);
+      setError(err.message || "An error occurred");
     }
-  };
-
-  const uploadImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    handleFileSelect(file);
-  };
-
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files?.[0];
-    handleFileSelect(file);
   };
 
   const clearUpload = () => {
@@ -96,35 +52,24 @@ export default function Upload() {
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Upload Image</h2>
 
       {!preview && (
-        <div
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-            isDragging
-              ? "border-blue-500 bg-blue-50"
-              : "border-gray-300 hover:border-gray-400"
-          }`}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
+        <div className="border-2 border-dashed rounded-lg p-8 text-center border-gray-300 hover:border-gray-400 transition-colors">
           <UploadCloud className="w-12 h-12 mx-auto mb-4 text-gray-400" />
           <p className="text-gray-600 mb-2">
             Drag and drop an image here, or click to select
           </p>
           <p className="text-sm text-gray-500 mb-4">
-            Supports JPG, PNG, GIF (max 10MB)
+            Supports JPG, PNG, GIF (max 16MB)
           </p>
-          <label className="inline-block">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={uploadImage}
-              className="hidden"
-              disabled={uploading}
-            />
-            <span className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer hover:bg-blue-700 transition-colors inline-block">
-              Select Image
-            </span>
-          </label>
+
+          <UploadButton
+            endpoint="imageUploader"
+            onClientUploadComplete={handleUploadComplete}
+            onUploadError={(error) => setError(error.message)}
+            appearance={{
+              button:
+                "px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors",
+            }}
+          />
         </div>
       )}
 
@@ -139,18 +84,10 @@ export default function Upload() {
             <button
               onClick={clearUpload}
               className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-              disabled={uploading}
             >
               <X className="w-5 h-5 text-gray-600" />
             </button>
           </div>
-
-          {uploading && (
-            <div className="flex items-center justify-center p-4 bg-blue-50 rounded-lg">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
-              <span className="text-blue-700 font-medium">Uploading...</span>
-            </div>
-          )}
 
           {result && (
             <div className="p-4 bg-green-50 rounded-lg border border-green-200">
@@ -160,14 +97,9 @@ export default function Upload() {
                   <h3 className="font-semibold text-green-800 mb-1">
                     Upload Successful
                   </h3>
-                  <p className="text-sm text-green-700">
-                    <span className="font-medium">File:</span>{" "}
-                    {result.filename}
-                  </p>
                   {result.caption && (
                     <p className="text-sm text-green-700 mt-1">
-                      <span className="font-medium">Caption:</span>{" "}
-                      {result.caption}
+                      <span className="font-medium">Caption:</span> {result.caption}
                     </p>
                   )}
                 </div>
@@ -180,9 +112,7 @@ export default function Upload() {
               <div className="flex items-start">
                 <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
                 <div className="flex-1">
-                  <h3 className="font-semibold text-red-800 mb-1">
-                    Upload Failed
-                  </h3>
+                  <h3 className="font-semibold text-red-800 mb-1">Upload Failed</h3>
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
               </div>
