@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, X, Check, AlertCircle } from "lucide-react";
-import { UploadButton } from "@/components/upload-button"; // ✅ use our reusable button
+import { UploadCloud, X, Check, AlertCircle, Tag } from "lucide-react";
+import { UploadButton } from "@/components/upload-button";
 import { API_BASE } from "@/lib/api";
 
 interface UploadResult {
   image_url: string;
   caption?: string;
+  tags?: string[];
 }
 
 export default function Upload() {
@@ -25,7 +26,6 @@ export default function Upload() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           image_url: file.ufsUrl,
-        
         }),
       });
 
@@ -35,7 +35,7 @@ export default function Upload() {
       }
 
       const data = await backendRes.json();
-      setResult({ image_url: file.ufsUrl, caption: data.caption });
+      setResult({ image_url: file.ufsUrl, caption: data.caption, tags: data.tags });
     } catch (err: any) {
       setError(err.message || "An error occurred");
     }
@@ -101,6 +101,15 @@ export default function Upload() {
                     <p className="text-sm text-green-700 mt-1">
                       <span className="font-medium">Caption:</span> {result.caption}
                     </p>
+                  )}
+                  {result.tags && result.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {result.tags.map((tag, idx) => (
+                        <span key={idx} className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-1">
+                          <Tag className="w-3 h-3" /> {tag}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>

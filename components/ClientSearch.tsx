@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { SearchIcon, Loader2, XCircle } from "lucide-react";
+import { SearchIcon, Loader2, XCircle, Tag } from "lucide-react";
 import Results from "./Results";
 import { API_BASE } from "@/lib/api";
 import { ImageItem } from "@/app/types/image";
@@ -75,7 +75,7 @@ export default function ClientSearch({ initialResults = [], initialQuery = "" }:
         <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
         <input
           type="text"
-          placeholder="Search your images..."
+          placeholder="Search by people, places, objects..."
           value={query}
           onChange={handleInputChange}
           className="w-full pl-10 pr-10 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
