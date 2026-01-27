@@ -3,12 +3,12 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 const footerLinks = [
-  { label: "Templates", href: "#" },
-  { label: "Showcase", href: "#" },
-  { label: "Pricing", href: "#" },
-  { label: "Login", href: "#" },
+  { label: "Templates", href: "/templates" },
+  { label: "Showcase", href: "/showcase" },
+  { label: "Pricing", href: "/pricing" },
 ]
 
 export function FooterSection() {
@@ -31,30 +31,40 @@ export function FooterSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
             >
-              OPUS.
+              GLOBY.
             </motion.h2>
 
             <nav className="flex flex-wrap gap-6 mt-8">
               {footerLinks.map((link, i) => (
-                <motion.a
+                <motion.div
                   key={i}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.05 }}
-                  data-clickable
                 >
-                  {link.label}
-                </motion.a>
+                  <Link
+                    href={link.href}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    data-clickable
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
               ))}
             </nav>
           </div>
 
-          {/* Email signup */}
-          <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
-            <p className="text-muted-foreground text-sm mb-4">Get updates on new templates and features.</p>
+          {/* Email signup + Auth CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-muted-foreground text-sm mb-4">
+              Get updates on new templates and features.
+            </p>
+
             <form onSubmit={(e) => e.preventDefault()} className="flex gap-2">
               <input
                 type="email"
@@ -71,18 +81,37 @@ export function FooterSection() {
                 <ArrowRight className="w-5 h-5" />
               </button>
             </form>
+
+            {/* 🔐 Login / Signup buttons */}
+            <div className="mt-6 flex gap-3">
+              <Link
+                href="/login"
+                className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-secondary transition"
+                data-clickable
+              >
+                Login
+              </Link>
+
+              <Link
+                href="/signup"
+                className="px-4 py-2 rounded-lg bg-foreground text-background text-sm hover:bg-foreground/90 transition"
+                data-clickable
+              >
+                Sign Up
+              </Link>
+            </div>
           </motion.div>
         </div>
 
         <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-muted-foreground text-sm">© 2025 Opus. All rights reserved.</p>
+          
           <div className="flex gap-6">
-            <a href="#" className="text-muted-foreground hover:text-foreground text-sm" data-clickable>
+            <Link href="/privacy" className="text-muted-foreground hover:text-foreground text-sm">
               Privacy
-            </a>
-            <a href="#" className="text-muted-foreground hover:text-foreground text-sm" data-clickable>
+            </Link>
+            <Link href="/terms" className="text-muted-foreground hover:text-foreground text-sm">
               Terms
-            </a>
+            </Link>
           </div>
         </div>
       </div>

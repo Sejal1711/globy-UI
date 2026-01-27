@@ -13,29 +13,29 @@ const _instrumentSerif = Instrument_Serif({
   style: ["normal", "italic"],
 })
 
-export const metadata: Metadata = {
-  title: "Opus – The Editorial Portfolio Platform",
-  description:
-    "A website builder designed for writers, photographers, and architects who need a narrative-driven portfolio.",
-  generator: "v0.app",
-  icons: {
-    icon: [
-      {
-        url: "/icon-light-32x32.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/icon-dark-32x32.png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/icon.svg",
-        type: "image/svg+xml",
-      },
-    ],
-    apple: "/apple-icon.png",
-  },
-}
+// export const metadata: Metadata = {
+//   title: "Globy – The Editorial Portfolio Platform",
+//   description:
+//     "A website builder designed for writers, photographers, and architects who need a narrative-driven portfolio.",
+//   generator: "v0.app",
+//   icons: {
+//     icon: [
+//       {
+//         url: "/icon-light-32x32.png",
+//         media: "(prefers-color-scheme: light)",
+//       },
+//       {
+//         url: "/icon-dark-32x32.png",
+//         media: "(prefers-color-scheme: dark)",
+//       },
+//       {
+//         url: "/icon.svg",
+//         type: "image/svg+xml",
+//       },
+//     ],
+//     apple: "/apple-icon.png",
+//   },
+// }
 
 export default function RootLayout({
   children,

@@ -2,12 +2,10 @@
 
 import { useRef } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
-
-const images = [
-  "/minimal-architecture-portfolio-with-clean-lines.jpg",
-  "/fashion-photography-editorial-black-and-white.jpg",
-  "/modern-ui-design-portfolio-mockup.jpg",
-]
+import { Navbar } from "../Navbar"
+// adjust path
+// images can be your local /public paths
+const images = ["/hero2.jpg", "/hero1.jpg", "/hero3.jpg"]
 
 export function HeroSection() {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -28,8 +26,11 @@ export function HeroSection() {
       ref={containerRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background px-6 py-24"
     >
+      {/* Navbar */}
+      <Navbar />
+
       {/* Stacked images */}
-      <div className="relative flex items-center justify-center">
+      <div className="relative flex items-center justify-center mt-16"> {/* mt-16 to offset navbar */}
         <motion.div
           className="absolute w-[280px] md:w-[320px] aspect-[3/4] rounded-xl overflow-hidden shadow-2xl"
           style={{ rotate: rotate1, x: x1, y, zIndex: 1 }}
@@ -73,6 +74,7 @@ export function HeroSection() {
         </motion.div>
       </div>
 
+      {/* Hero text */}
       <motion.div
         className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
         initial={{ opacity: 0, y: 30 }}
@@ -80,10 +82,11 @@ export function HeroSection() {
         transition={{ duration: 1, delay: 0.8 }}
       >
         <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif text-center text-foreground mix-blend-difference">
-          Your work, <em className="italic">curated</em>.
+          Your world, <em className="italic">organized visually</em>.
         </h1>
       </motion.div>
 
+      {/* Scroll indicator */}
       <motion.div
         className="absolute bottom-8 left-1/2 -translate-x-1/2"
         initial={{ opacity: 0 }}
