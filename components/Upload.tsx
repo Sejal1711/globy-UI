@@ -8,6 +8,7 @@ import { API_BASE } from "@/lib/api"
 import { CustomCursor } from "@/components/custom-cursor"
 import { LenisProvider } from "@/components/lenis-provider"
 import { Navbar } from "./Navbar"
+import RequireAuth from "./Requireauth"
 
 interface UploadResult {
   image_url: string
@@ -54,7 +55,7 @@ export default function UploadPage() {
   return (
     <LenisProvider>
       <CustomCursor />
-
+      <RequireAuth>
       <div className="relative min-h-screen bg-background overflow-hidden">
         <Navbar />
 
@@ -161,6 +162,7 @@ export default function UploadPage() {
           </div>
         </div>
       </div>
+      </RequireAuth>
     </LenisProvider>
   )
 }

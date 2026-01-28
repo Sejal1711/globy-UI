@@ -28,7 +28,8 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (res.ok && data.access_token) {
-        localStorage.setItem("token", data.access_token)
+          console.log("Token from server:", data.access_token)
+        sessionStorage.setItem("token", data.access_token)
         setMessage("Login successful. Redirecting...")
         setTimeout(() => router.push("/"), 1000)
       } else {

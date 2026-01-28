@@ -1,65 +1,133 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
+import Results from "@/components/Results"
+import { API_BASE } from "@/lib/api"
+import { ImageItem } from "@/app/types/image"
+import { useRouter } from "next/navigation"
 
 export function Navbar() {
   const router = useRouter()
-  const [search, setSearch] = useState("")
+  const [query, setQuery] = useState("")
+  const [images, setImages] = useState<ImageItem[]>([])
+  const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (search.trim() === "") return
+  const debounceRef = useRef<NodeJS.Timeout | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
 
-    router.push(`/search?query=${encodeURIComponent(search.trim())}`)
-    setSearch("")
+  // 🔍 Search with cancellation
+  const searchImages = async (q: string) => {
+    if (!q.trim()) {
+      setImages([])
+      setLoading(false)
+      return
+    }
+
+    if (abortRef.current) abortRef.current.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+    setLoading(true)
+
+    try {
+      const res = await fetch(`${API_BASE}/search?query=${encodeURIComponent(q)}`, {
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+
+      if (!res.ok) {
+        setImages([])
+        return
+      }
+
+      const data = await res.json()
+      const mappedResults: ImageItem[] = (data.results ?? []).map((item: any) => ({
+        uuid: item.id ?? item.uuid,
+        image_url: item.image_url ?? item.imageUrl,
+        caption: item.caption ?? "",
+        tags: item.tags ?? [],
+      }))
+
+      setImages(mappedResults)
+    } catch (err: any) {
+      if (err.name !== "AbortError") console.error("Search error:", err)
+      setImages([])
+    } finally {
+      setLoading(false)
+    }
   }
 
+  // ⌨️ Handle typing
+  const handleChange = (value: string) => {
+    const token = localStorage.getItem("token")
+    if (!token) {
+      router.push("/login")
+      return
+    }
+
+    setQuery(value)
+    setOpen(true) // overlay should always stay open while typing
+
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => searchImages(value), 300)
+  }
+
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      if (abortRef.current) abortRef.current.abort()
+    }
+  }, [])
+
   return (
-    <motion.nav
-      initial={{ y: -50, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-background/70 border-b border-border"
-    >
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-        {/* Logo */}
-        <Link href="/" className="text-2xl font-serif text-foreground">
-          GLOBY.
-        </Link>
-
-        {/* Links + Search */}
-        <div className="flex items-center gap-6">
-          <Link
-            href="/upload"
-            className="text-foreground hover:text-primary transition font-medium"
-            data-clickable
-          >
-            Upload
+    <>
+      {/* Navbar */}
+      <motion.nav
+        initial={{ y: -50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-background/70 border-b"
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+          <Link href="/" className="text-2xl font-serif">
+            GLOBY.
           </Link>
 
-          <Link
-            href="/gallery"
-            className="text-foreground hover:text-primary transition font-medium"
-            data-clickable
-          >
-            Gallery
-          </Link>
+          <div className="flex items-center gap-6">
+            <Link href="/upload">Upload</Link>
+            <Link href="/gallery">Gallery</Link>
 
-          {/* Search Form */}
-          <form onSubmit={handleSearch} className="relative">
             <input
-              type="text"
+              value={query}
+              onChange={(e) => handleChange(e.target.value)}
               placeholder="Search..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="rounded-lg border border-border bg-secondary/50 px-3 py-1 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary transition w-36 sm:w-48"
+              className="rounded-lg border px-3 py-1 w-40 focus:outline-none focus:ring-2 focus:ring-primary"
             />
-          </form>
+          </div>
         </div>
-      </div>
-    </motion.nav>
+      </motion.nav>
+
+      {/* Overlay results */}
+      {open && (
+        <div className="fixed inset-0 top-16 z-40 bg-background overflow-y-auto px-6 pb-10">
+          {loading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="aspect-square bg-gray-200 animate-pulse rounded-xl"
+                />
+              ))}
+            </div>
+          ) : (
+            <Results images={images} />
+          )}
+        </div>
+      )}
+    </>
   )
 }

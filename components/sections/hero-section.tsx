@@ -26,8 +26,7 @@ export function HeroSection() {
       ref={containerRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-background px-6 py-24"
     >
-      {/* Navbar */}
-      <Navbar />
+      
 
       {/* Stacked images */}
       <div className="relative flex items-center justify-center mt-16"> {/* mt-16 to offset navbar */}
