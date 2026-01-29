@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState, useRef, useEffect } from "react"
 import { motion } from "framer-motion"
 import Results from "@/components/Results"
+import { SearchLoader } from "@/components/SearchLoader"
 import { API_BASE } from "@/lib/api"
 import { ImageItem } from "@/app/types/image"
 import { useRouter } from "next/navigation"
@@ -29,18 +30,18 @@ export function Navbar() {
     if (abortRef.current) abortRef.current.abort()
     const controller = new AbortController()
     abortRef.current = controller
-    setLoading(true)
 
     try {
       const res = await fetch(`${API_BASE}/search?query=${encodeURIComponent(q)}`, {
         signal: controller.signal,
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
       })
 
       if (!res.ok) {
         setImages([])
+        setLoading(false)
         return
       }
 
@@ -53,24 +54,35 @@ export function Navbar() {
       }))
 
       setImages(mappedResults)
-    } catch (err: any) {
-      if (err.name !== "AbortError") console.error("Search error:", err)
-      setImages([])
-    } finally {
       setLoading(false)
+    } catch (err: any) {
+      if (err.name !== "AbortError") {
+        console.error("Search error:", err)
+        setImages([])
+        setLoading(false)
+      }
+      // Don't set loading to false on AbortError - new search is coming
     }
   }
 
   // ⌨️ Handle typing
   const handleChange = (value: string) => {
-    const token = localStorage.getItem("token")
+    const token = sessionStorage.getItem("token")
     if (!token) {
       router.push("/login")
       return
     }
 
     setQuery(value)
-    setOpen(true) // overlay should always stay open while typing
+    setOpen(true)
+
+    // Show loading immediately when user types
+    if (value.trim()) {
+      setLoading(true)
+    } else {
+      setLoading(false)
+      setImages([])
+    }
 
     if (debounceRef.current) clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(() => searchImages(value), 300)
@@ -85,7 +97,6 @@ export function Navbar() {
 
   return (
     <>
-      {/* Navbar */}
       <motion.nav
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -93,9 +104,7 @@ export function Navbar() {
         className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-background/70 border-b"
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="text-2xl font-serif">
-            GLOBY.
-          </Link>
+          <Link href="/" className="text-2xl font-serif">GLOBY.</Link>
 
           <div className="flex items-center gap-6">
             <Link href="/upload">Upload</Link>
@@ -111,20 +120,17 @@ export function Navbar() {
         </div>
       </motion.nav>
 
-      {/* Overlay results */}
       {open && (
         <div className="fixed inset-0 top-16 z-40 bg-background overflow-y-auto px-6 pb-10">
-          {loading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="aspect-square bg-gray-200 animate-pulse rounded-xl"
-                />
-              ))}
-            </div>
-          ) : (
-            <Results images={images} />
+          {/* ✅ Show loader when loading */}
+          {loading && <SearchLoader />}
+          
+          {/* ✅ Show results when available and not loading */}
+          {!loading && images.length > 0 && <Results images={images} />}
+
+          {/* Show no results only when query is not empty, loading is false, and no images */}
+          {!loading && query.trim() !== "" && images.length === 0 && (
+            <p className="text-gray-500 mt-6 text-center">No results found.</p>
           )}
         </div>
       )}

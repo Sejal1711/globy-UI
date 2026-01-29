@@ -9,6 +9,7 @@ import { CustomCursor } from "@/components/custom-cursor"
 import { LenisProvider } from "@/components/lenis-provider"
 import { Navbar } from "./Navbar"
 import RequireAuth from "./Requireauth"
+import { FooterSection } from "./sections/footer-section"
 
 interface UploadResult {
   image_url: string
@@ -56,113 +57,119 @@ export default function UploadPage() {
     <LenisProvider>
       <CustomCursor />
       <RequireAuth>
-      <div className="relative min-h-screen bg-background overflow-hidden">
-        <Navbar />
+        <div className="relative min-h-screen bg-background overflow-hidden">
+          <Navbar />
 
-        {/* Gradient blob */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[700px] h-[500px] bg-gradient-to-tr from-purple-300 via-purple-200 to-lime-200 opacity-40 blur-3xl rounded-full" />
-        </div>
+          {/* Soft Globy gradient blob */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="w-[700px] h-[500px] bg-gradient-to-tr from-primary/30 via-primary/20 to-transparent blur-3xl rounded-full" />
+          </div>
 
-        {/* Content */}
-        <div className="relative pt-24 max-w-3xl mx-auto px-6 pb-12">
-          <div className="bg-background/80 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-lg space-y-6">
-            <h2 className="text-3xl font-serif text-foreground font-bold text-center">
-              Upload Image
-            </h2>
+          {/* Content */}
+          <div className="relative pt-24 max-w-3xl mx-auto px-6 pb-12">
+            <div className="bg-background/80 backdrop-blur-xl border border-border rounded-2xl p-8 shadow-xl space-y-6">
+              <h2 className="text-3xl font-serif text-foreground font-bold text-center">
+                Upload Image
+              </h2>
 
-            {!preview && (
-              <div className="border-2 border-dashed rounded-lg p-8 text-center border-gray-300 hover:border-gray-400 transition-colors">
-                <UploadCloud className="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                <p className="text-gray-600 mb-2">
-                  Drag and drop an image here, or click to select
-                </p>
-                <p className="text-sm text-gray-500 mb-4">
-                  Supports JPG, PNG, GIF (max 16MB)
-                </p>
+              {!preview && (
+                <div className="border-2 border-dashed rounded-xl p-10 text-center border-border/50 hover:border-border transition-colors bg-surface/40">
+                  <UploadCloud className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground mb-2">
+                    Drag and drop an image here, or click to select
+                  </p>
+                  <p className="text-sm text-muted-foreground/70 mb-6">
+                    Supports JPG, PNG, GIF (max 16MB)
+                  </p>
 
-                <UploadButton
-  endpoint="imageUploader"
-  onClientUploadComplete={handleUploadComplete}
-  onUploadError={(error) => setError(error.message)}
-  appearance={{
-    container: "mx-auto",
-    button: "px-6 py-2 bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors",
-  }}
-  content={{
-    button: () => <span className="font-semibold">Upload</span>,
-  }}
-/>
-
-              </div>
-            )}
-
-            {preview && (
-              <div className="space-y-4">
-                <div className="relative">
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="w-full h-64 object-cover rounded-lg"
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={handleUploadComplete}
+                    onUploadError={(error) => setError(error.message)}
+                    appearance={{
+                      container: "mx-auto",
+                      button:
+                        "px-8 py-3 rounded-xl font-medium bg-foreground text-background shadow hover:bg-foreground/90 transition-all",
+                    }}
+                    content={{
+                      button: () => <span>Upload</span>,
+                    }}
                   />
-                  <button
-                    onClick={clearUpload}
-                    className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100 transition-colors"
-                    data-clickable
-                  >
-                    <X className="w-5 h-5 text-gray-600" />
-                  </button>
                 </div>
+              )}
 
-                {result && (
-                  <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <div className="flex items-start">
-                      <Check className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-green-800 mb-1">
+              {preview && (
+                <div className="space-y-5">
+                  <div className="relative group">
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="w-full h-72 object-cover rounded-xl border border-border shadow-md"
+                    />
+                    <button
+                      onClick={clearUpload}
+                      className="absolute top-3 right-3 p-2 bg-background/90 backdrop-blur rounded-full shadow hover:bg-background transition"
+                      data-clickable
+                    >
+                      <X className="w-5 h-5 text-muted-foreground" />
+                    </button>
+                  </div>
+
+                  {result && (
+                    <div className="p-6 bg-secondary rounded-xl border border-border shadow-sm space-y-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-primary/20 rounded-full">
+                          <Check className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="font-semibold text-foreground text-lg">
                           Upload Successful
                         </h3>
-                        {result.caption && (
-                          <p className="text-sm text-green-700 mt-1">
-                            <span className="font-medium">Caption:</span> {result.caption}
-                          </p>
-                        )}
-                        {result.tags && result.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {result.tags.map((tag, idx) => (
-                              <span
-                                key={idx}
-                                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm flex items-center gap-1"
-                              >
-                                <Tag className="w-3 h-3" /> {tag}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  </div>
-                )}
 
-                {error && (
-                  <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                    <div className="flex items-start">
-                      <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-red-800 mb-1">
+                      {result.caption && (
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                          <span className="font-medium text-foreground">Caption:</span>{" "}
+                          {result.caption}
+                        </p>
+                      )}
+
+                      {result.tags && result.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {result.tags.map((tag, idx) => (
+                            <span
+                              key={idx}
+                              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-medium
+                              bg-primary/15 text-foreground border border-border shadow-sm hover:bg-primary/20 transition"
+                            >
+                              <Tag className="w-3.5 h-3.5" />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {error && (
+                    <div className="p-6 bg-destructive/10 rounded-xl border border-destructive/20 shadow-sm space-y-3">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-destructive/20 rounded-full">
+                          <AlertCircle className="w-5 h-5 text-destructive" />
+                        </div>
+                        <h3 className="font-semibold text-destructive text-lg">
                           Upload Failed
                         </h3>
-                        <p className="text-sm text-red-700">{error}</p>
                       </div>
+                      <p className="text-sm text-destructive/80">{error}</p>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
       </RequireAuth>
+      <FooterSection />
     </LenisProvider>
   )
 }

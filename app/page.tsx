@@ -6,6 +6,7 @@ import { FeaturesSection } from "@/components/sections/features-section"
 import { FooterSection } from "@/components/sections/footer-section"
 import { CustomCursor } from "@/components/custom-cursor"
 import { Navbar } from "@/components/Navbar"
+import { Upload } from "lucide-react"
 
 export default function Home() {
   return (
