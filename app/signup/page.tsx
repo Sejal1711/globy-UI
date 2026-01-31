@@ -10,13 +10,16 @@ import { LenisProvider } from "@/components/lenis-provider"
 
 export default function SignupPage() {
   const router = useRouter()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [message, setMessage] = useState("")
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("")
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage("")
+    setMessageType("")
 
     try {
       const res = await fetch(`${API_BASE}/users/signup`, {
@@ -24,31 +27,37 @@ export default function SignupPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       })
+
       const data = await res.json()
 
       if (res.ok) {
-        setMessage("Signup successful! Redirecting to login...")
-        setTimeout(() => router.push("/login"), 1500)
+        // show message immediately
+        setMessage("Signup successful! Redirecting to login…")
+        setMessageType("success")
+
+        // redirect AFTER message is visible
+        setTimeout(() => {
+          router.push("/login")
+        }, 1500)
       } else {
         setMessage(data.detail || "Error signing up")
+        setMessageType("error")
       }
     } catch {
       setMessage("Network error. Try again.")
+      setMessageType("error")
     }
   }
 
   return (
     <LenisProvider>
-      {/* Custom Cursor */}
       <CustomCursor />
 
       <div className="relative min-h-screen flex items-center justify-center bg-background overflow-hidden px-6">
-        {/* Gradient blob background */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[700px] h-[500px] bg-gradient-to-tr from-purple-300 via-purple-200 to-lime-200 opacity-40 blur-3xl rounded-full" />
         </div>
 
-        {/* Signup card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -90,7 +99,15 @@ export default function SignupPage() {
           </form>
 
           {message && (
-            <p className="mt-4 text-sm text-red-500 text-center">{message}</p>
+            <p
+              className={`mt-4 text-sm text-center ${
+                messageType === "success"
+                  ? "text-foreground"
+                  : "text-red-500"
+              }`}
+            >
+              {message}
+            </p>
           )}
 
           <div className="mt-6 flex justify-between items-center text-sm">

@@ -19,20 +19,20 @@ export function ManifestoSection() {
     >
       <div className="max-w-5xl mx-auto relative">
         <h2 className="text-4xl md:text-6xl lg:text-7xl font-serif leading-tight text-center text-foreground/10">
-          Search smarter.
-          <br />
-          Not harder.
-        </h2>
+  Search images by describing them.
+  <br />
+  Globy finds the right one.
+</h2>
 
-        {/* Gradient mask reveal text */}
-        <motion.h2
-          className="absolute inset-0 text-4xl md:text-6xl lg:text-7xl font-serif leading-tight text-center bg-gradient-to-r from-purple-700 via-purple-400 to-purple-700 bg-clip-text text-transparent"
-          style={{ clipPath }}
-        >
-          Search smarter.
-          <br />
-          Not harder.
-        </motion.h2>
+<motion.h2
+  className="absolute inset-0 text-4xl md:text-6xl lg:text-7xl font-serif leading-tight text-center bg-gradient-to-r from-purple-700 via-purple-400 to-purple-700 bg-clip-text text-transparent"
+  style={{ clipPath }}
+>
+  Search images by describing them.
+  <br />
+  Globy finds the right one.
+</motion.h2>
+
       </div>
     </section>
   )

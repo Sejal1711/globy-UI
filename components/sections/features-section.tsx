@@ -112,7 +112,7 @@ export function FeaturesSection() {
             <div className="mt-4">
               <h3 className="font-serif text-xl text-foreground">AI Search</h3>
               <p className="text-muted-foreground text-sm mt-1">
-                Instantly find anything across your files using natural language.
+                Instantly find any image across your gallery using natural language.
               </p>
             </div>
           </motion.div>
@@ -134,7 +134,7 @@ export function FeaturesSection() {
             <div className="mt-4">
               <h3 className="font-serif text-xl text-foreground">Auto Tagging</h3>
               <p className="text-muted-foreground text-sm mt-1">
-                Automatically tags images and documents using AI vision and NLP.
+                Automatically tags images using AI vision and NLP.
               </p>
             </div>
           </motion.div>

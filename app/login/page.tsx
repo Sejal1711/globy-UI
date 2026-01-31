@@ -10,13 +10,16 @@ import { LenisProvider } from "@/components/lenis-provider"
 
 export default function LoginPage() {
   const router = useRouter()
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [message, setMessage] = useState("")
+  const [messageType, setMessageType] = useState<"success" | "error" | "">("")
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage("")
+    setMessageType("")
 
     try {
       const res = await fetch(`${API_BASE}/users/login`, {
@@ -28,30 +31,37 @@ export default function LoginPage() {
       const data = await res.json()
 
       if (res.ok && data.access_token) {
-          console.log("Token from server:", data.access_token)
+        console.log("Token from server:", data.access_token)
+
         sessionStorage.setItem("token", data.access_token)
-        setMessage("Login successful. Redirecting...")
-        setTimeout(() => router.push("/"), 1000)
+
+        // show immediately
+        setMessage("Login successful. Redirecting…")
+        setMessageType("success")
+
+        // redirect after user sees it
+        setTimeout(() => {
+          router.push("/")
+        }, 1000)
       } else {
         setMessage(data.detail || "Invalid credentials")
+        setMessageType("error")
       }
     } catch {
       setMessage("Network error. Try again.")
+      setMessageType("error")
     }
   }
 
   return (
     <LenisProvider>
-      {/* Custom Cursor */}
       <CustomCursor />
 
       <div className="relative min-h-screen flex items-center justify-center bg-background overflow-hidden px-6">
-        {/* Gradient blob background */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="w-[700px] h-[500px] bg-gradient-to-tr from-purple-300 via-purple-200 to-lime-200 opacity-40 blur-3xl rounded-full" />
         </div>
 
-        {/* Login card */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -93,7 +103,15 @@ export default function LoginPage() {
           </form>
 
           {message && (
-            <p className="mt-4 text-sm text-red-500 text-center">{message}</p>
+            <p
+              className={`mt-4 text-sm text-center ${
+                messageType === "success"
+                  ? "text-foreground"
+                  : "text-red-500"
+              }`}
+            >
+              {message}
+            </p>
           )}
 
           <div className="mt-6 flex justify-between items-center text-sm">

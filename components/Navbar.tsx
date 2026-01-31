@@ -98,27 +98,36 @@ export function Navbar() {
   return (
     <>
       <motion.nav
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-background/70 border-b"
-      >
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-          <Link href="/" className="text-2xl font-serif">GLOBY.</Link>
+  initial={{ y: -50, opacity: 0 }}
+  animate={{ y: 0, opacity: 1 }}
+  transition={{ duration: 0.5 }}
+  className="fixed top-0 left-0 w-full z-50 backdrop-blur-lg bg-background/70 border-b"
+>
+  <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+    {/* Logo */}
+    <Link href="/" className="flex items-center gap-2">
+      <img
+        src="/globy-logo.png" 
+        alt="Globy Logo"
+        className="h-8 w-auto"
+      />
+     
+    </Link>
 
-          <div className="flex items-center gap-6">
-            <Link href="/upload">Upload</Link>
-            <Link href="/gallery">Gallery</Link>
+    <div className="flex items-center gap-6">
+      <Link href="/upload">Upload</Link>
+      <Link href="/gallery">Gallery</Link>
 
-            <input
-              value={query}
-              onChange={(e) => handleChange(e.target.value)}
-              placeholder="Search..."
-              className="rounded-lg border px-3 py-1 w-40 focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-        </div>
-      </motion.nav>
+      <input
+        value={query}
+        onChange={(e) => handleChange(e.target.value)}
+        placeholder="Search..."
+        className="rounded-lg border px-3 py-1 w-40 focus:outline-none focus:ring-2 focus:ring-primary"
+      />
+    </div>
+  </div>
+</motion.nav>
+
 
       {open && (
         <div className="fixed inset-0 top-16 z-40 bg-background overflow-y-auto px-6 pb-10">
